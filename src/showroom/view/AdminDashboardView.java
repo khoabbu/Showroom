@@ -75,8 +75,9 @@ public class AdminDashboardView extends javax.swing.JFrame {
 
         btnAddCar.addActionListener(evt -> {
     // Mở dialog thêm xe
-    AddCarDialog dialog = new AddCarDialog(this, true);
-    dialog.setVisible(true);  // Hiển thị dialog
+    AddCarDialog dialog = new AddCarDialog(this);
+dialog.setVisible(true);
+
 
     // Sau khi đóng dialog, tải lại bảng
     loadDataToTable();

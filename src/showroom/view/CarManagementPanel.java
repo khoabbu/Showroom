@@ -4,6 +4,7 @@
  */
 package showroom.view;
 
+
 import java.util.List;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
@@ -176,7 +177,7 @@ public class CarManagementPanel extends javax.swing.JPanel {
     
     
     private void btnAddCarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddCarActionPerformed
-        AddCarDialog addCarDialog = new AddCarDialog(null, true); // Dùng null vì JPanel không phải là Frame
+        AddCarDialog addCarDialog = new AddCarDialog(null);
         addCarDialog.setVisible(true);
         loadDataToTable();
     }//GEN-LAST:event_btnAddCarActionPerformed
