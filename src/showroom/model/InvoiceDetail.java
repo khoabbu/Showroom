@@ -2,6 +2,16 @@
 package showroom.model;
 
 public class InvoiceDetail {
+    private double unitPrice;
+
+public void setUnitPrice(double unitPrice) {
+    this.unitPrice = unitPrice;
+}
+
+public double getUnitPrice() {
+    return unitPrice;
+}
+
     private int invoiceDetailId; //
     private int invoiceId; //
     private int carId; //

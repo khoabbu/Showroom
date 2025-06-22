@@ -2,36 +2,59 @@ package showroom.view;
 
 import showroom.DAO.CarDAO;
 import showroom.model.Car;
-import java.util.List;
-import javax.swing.JFrame;
-import javax.swing.JOptionPane;
-import javax.swing.table.DefaultTableModel;
+
+import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
-import javax.swing.RowFilter;
-import javax.swing.table.TableRowSorter;
+import javax.swing.table.*;
+import java.awt.*;
+import java.util.List;
 
-
-public class CustomerView extends javax.swing.JFrame {
+public class CustomerView extends JFrame {
 
     private CarDAO carDAO;
     private DefaultTableModel tableModel;
     private TableRowSorter<DefaultTableModel> sorter;
 
+    private JTable tblCars;
+    private JTextField txtSearch;
+    private JButton btnViewDetails;
+    private JPanel jPanel1;
+    private JLabel jLabel1;
+    private JLabel jLabel2;
+    private JScrollPane jScrollPane1;
+
     public CustomerView() {
         initComponents();
         this.setTitle("Giao diện khách hàng");
-        this.setLocationRelativeTo(null); // Center the window
+        this.setLocationRelativeTo(null);
 
         carDAO = new CarDAO();
         tableModel = (DefaultTableModel) tblCars.getModel();
 
         tableModel.setColumnIdentifiers(new Object[]{
-            "ID", "Tên Xe", "Hãng SX", "Năm SX", "Màu Sắc", "Kiểu Dáng", "Giá Bán", "Số Lượng Tồn", "Mô Tả"
+                "ID", "Tên Xe", "Hãng SX", "Năm SX", "Màu Sắc",
+                "Kiểu Dáng", "Giá Bán", "Số Lượng Tồn", "Mô Tả", "Ảnh"
         });
-        
+
         sorter = new TableRowSorter<>(tableModel);
         tblCars.setRowSorter(sorter);
+        tblCars.setRowHeight(70); // Chiều cao đủ để hiển thị ảnh
+
+        // Cài renderer cho cột cuối cùng là ảnh
+        int imageColumnIndex = tblCars.getColumnCount() - 1;
+        tblCars.getColumnModel().getColumn(imageColumnIndex).setCellRenderer(new DefaultTableCellRenderer() {
+            @Override
+            public void setValue(Object value) {
+                if (value instanceof ImageIcon) {
+                    setIcon((ImageIcon) value);
+                    setText("");
+                } else {
+                    setIcon(null);
+                    setText("Không ảnh");
+                }
+            }
+        });
 
         loadDataToTable();
         addSearchFunctionality();
@@ -39,49 +62,52 @@ public class CustomerView extends javax.swing.JFrame {
 
     private void loadDataToTable() {
         try {
-            tableModel.setRowCount(0); // Clear existing rows
+            tableModel.setRowCount(0);
             List<Car> carList = carDAO.getAllCars();
+
             for (Car car : carList) {
-                // Only display cars that are in stock
-                if (car.getQuantityInStock() > 0) { 
+                if (car.getQuantityInStock() > 0) {
+                    ImageIcon icon = null;
+                    if (car.getImagePath() != null && !car.getImagePath().isEmpty()) {
+                        try {
+                            Image img = new ImageIcon(car.getImagePath()).getImage()
+                                    .getScaledInstance(80, 60, Image.SCALE_SMOOTH);
+                            icon = new ImageIcon(img);
+                        } catch (Exception e) {
+                            System.err.println("Không thể tải ảnh từ: " + car.getImagePath());
+                        }
+                    }
+
                     tableModel.addRow(new Object[]{
-                        car.getId(),
-                        car.getCarName(),
-                        car.getManufacturer(),
-                        car.getYearOfManufacture(),
-                        car.getColor(),
-                        car.getModelType(),
-                        car.getSellingPrice(),
-                        car.getQuantityInStock(),
-                        car.getDescription()
+                            car.getId(),
+                            car.getCarName(),
+                            car.getManufacturer(),
+                            car.getYearOfManufacture(),
+                            car.getColor(),
+                            car.getModelType(),
+                            car.getSellingPrice(),
+                            car.getQuantityInStock(),
+                            car.getDescription(),
+                            icon
                     });
                 }
             }
         } catch (Exception e) {
             e.printStackTrace();
-            JOptionPane.showMessageDialog(this, "Lỗi khi tải dữ liệu xe: " + e.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this,
+                    "Lỗi khi tải dữ liệu xe: " + e.getMessage(),
+                    "Lỗi", JOptionPane.ERROR_MESSAGE);
         }
     }
-    
+
     private void addSearchFunctionality() {
         txtSearch.getDocument().addDocumentListener(new DocumentListener() {
-            @Override
-            public void insertUpdate(DocumentEvent e) {
-                search(txtSearch.getText());
-            }
+            public void insertUpdate(DocumentEvent e) { search(txtSearch.getText()); }
+            public void removeUpdate(DocumentEvent e) { search(txtSearch.getText()); }
+            public void changedUpdate(DocumentEvent e) { search(txtSearch.getText()); }
 
-            @Override
-            public void removeUpdate(DocumentEvent e) {
-                search(txtSearch.getText());
-            }
-
-            @Override
-            public void changedUpdate(DocumentEvent e) {
-                search(txtSearch.getText());
-            }
-
-            public void search(String str) {
-                if (str.length() == 0) {
+            private void search(String str) {
+                if (str.isEmpty()) {
                     sorter.setRowFilter(null);
                 } else {
                     sorter.setRowFilter(RowFilter.regexFilter("(?i)" + str));
@@ -90,168 +116,78 @@ public class CustomerView extends javax.swing.JFrame {
         });
     }
 
-    @SuppressWarnings("unchecked")
-    // <editor-fold defaultstate="collapsed" desc="Generated Code">                          
-    private void initComponents() {
-
-        jPanel1 = new javax.swing.JPanel();
-        jLabel1 = new javax.swing.JLabel();
-        jScrollPane1 = new javax.swing.JScrollPane();
-        tblCars = new javax.swing.JTable();
-        txtSearch = new javax.swing.JTextField();
-        jLabel2 = new javax.swing.JLabel();
-        btnViewDetails = new javax.swing.JButton();
-
-        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
-
-        jLabel1.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
-        jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel1.setText("DANH SÁCH XE CÓ SẴN");
-
-        tblCars.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null}
-            },
-            new String [] {
-                "Title 1", "Title 2", "Title 3", "Title 4"
-            }
-        ) {
-            boolean[] canEdit = new boolean [] {
-                false, false, false, false, true
-            };
-
-            public boolean isCellEditable(int rowIndex, int columnIndex) {
-                return canEdit [columnIndex];
-            }
-        });
-        tblCars.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
-        jScrollPane1.setViewportView(tblCars);
-
-        jLabel2.setText("Tìm kiếm:");
-
-        btnViewDetails.setText("Xem chi tiết");
-        btnViewDetails.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnViewDetailsActionPerformed(evt);
-            }
-        });
-
-        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
-        jPanel1.setLayout(jPanel1Layout);
-        jPanel1Layout.setHorizontalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 788, Short.MAX_VALUE)
-                    .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addComponent(jLabel2)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(txtSearch, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(btnViewDetails)))
-                .addContainerGap())
-        );
-        jPanel1Layout.setVerticalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(txtSearch, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel2)
-                    .addComponent(btnViewDetails))
-                .addGap(18, 18, 18)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 350, Short.MAX_VALUE)
-                .addContainerGap())
-        );
-
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
-        getContentPane().setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addContainerGap())
-        );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addContainerGap())
-        );
-
-        pack();
-    }// </editor-fold>                        
-
-    private void btnViewDetailsActionPerformed(java.awt.event.ActionEvent evt) {                                               
+    private void btnViewDetailsActionPerformed(java.awt.event.ActionEvent evt) {
         int selectedRow = tblCars.getSelectedRow();
         if (selectedRow == -1) {
-            JOptionPane.showMessageDialog(this, "Vui lòng chọn một chiếc xe để xem chi tiết.", "Thông báo", JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Vui lòng chọn một chiếc xe để xem chi tiết.",
+                    "Thông báo", JOptionPane.WARNING_MESSAGE);
             return;
         }
 
-        // Get the actual row index from the model, considering sorting/filtering
         int modelRow = tblCars.convertRowIndexToModel(selectedRow);
         int carId = (int) tableModel.getValueAt(modelRow, 0);
-
         Car car = carDAO.getCarById(carId);
+
         if (car != null) {
             String details = "Tên xe: " + car.getCarName() + "\n"
-                           + "Hãng SX: " + car.getManufacturer() + "\n"
-                           + "Năm SX: " + car.getYearOfManufacture() + "\n"
-                           + "Màu Sắc: " + car.getColor() + "\n"
-                           + "Kiểu Dáng: " + car.getModelType() + "\n"
-                           + "Giá Bán: " + String.format("%.0f", car.getSellingPrice()) + " VND\n" // Format as integer
-                           + "Số Lượng Tồn: " + car.getQuantityInStock() + "\n"
-                           + "Mô Tả: " + car.getDescription();
-            JOptionPane.showMessageDialog(this, details, "Chi tiết xe: " + car.getCarName(), JOptionPane.INFORMATION_MESSAGE);
+                    + "Hãng SX: " + car.getManufacturer() + "\n"
+                    + "Năm SX: " + car.getYearOfManufacture() + "\n"
+                    + "Màu Sắc: " + car.getColor() + "\n"
+                    + "Kiểu Dáng: " + car.getModelType() + "\n"
+                    + "Giá Bán: " + String.format("%.0f", car.getSellingPrice()) + " VND\n"
+                    + "Số Lượng Tồn: " + car.getQuantityInStock() + "\n"
+                    + "Mô Tả: " + car.getDescription();
+            JOptionPane.showMessageDialog(this, details,
+                    "Chi tiết xe: " + car.getCarName(), JOptionPane.INFORMATION_MESSAGE);
         } else {
-            JOptionPane.showMessageDialog(this, "Không tìm thấy thông tin chi tiết xe.", "Lỗi", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this,
+                    "Không tìm thấy thông tin chi tiết xe.", "Lỗi", JOptionPane.ERROR_MESSAGE);
         }
-    }                                              
-
-    public static void main(String args[]) {
-        /* Set the Nimbus look and feel */
-        try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(CustomerView.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(CustomerView.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(CustomerView.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(CustomerView.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        }
-
-        /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new CustomerView().setVisible(true);
-            }
-        });
     }
 
-    // Variables declaration - do not modify                     
-    private javax.swing.JButton btnViewDetails;
-    private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel2;
-    private javax.swing.JPanel jPanel1;
-    private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JTable tblCars;
-    private javax.swing.JTextField txtSearch;
-    // End of variables declaration                   
+    private void initComponents() {
+        jPanel1 = new JPanel();
+        jLabel1 = new JLabel("DANH SÁCH XE CÓ SẴN", SwingConstants.CENTER);
+        jLabel1.setFont(new Font("Segoe UI", Font.BOLD, 18));
+        jLabel2 = new JLabel("Tìm kiếm:");
+        txtSearch = new JTextField(20);
+        btnViewDetails = new JButton("Xem chi tiết");
+        btnViewDetails.addActionListener(this::btnViewDetailsActionPerformed);
+
+        tblCars = new JTable();
+        jScrollPane1 = new JScrollPane(tblCars);
+
+        GroupLayout layout = new GroupLayout(jPanel1);
+        jPanel1.setLayout(layout);
+
+        layout.setHorizontalGroup(
+            layout.createParallelGroup(GroupLayout.Alignment.LEADING)
+                .addComponent(jLabel1, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(layout.createSequentialGroup()
+                    .addComponent(jLabel2)
+                    .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+                    .addComponent(txtSearch, GroupLayout.PREFERRED_SIZE, 200, GroupLayout.PREFERRED_SIZE)
+                    .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED, 400, Short.MAX_VALUE)
+                    .addComponent(btnViewDetails))
+                .addComponent(jScrollPane1)
+        );
+        layout.setVerticalGroup(
+            layout.createSequentialGroup()
+                .addComponent(jLabel1, GroupLayout.PREFERRED_SIZE, 40, GroupLayout.PREFERRED_SIZE)
+                .addGap(10)
+                .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+                        .addComponent(jLabel2)
+                        .addComponent(txtSearch, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                        .addComponent(btnViewDetails))
+                .addGap(10)
+                .addComponent(jScrollPane1, GroupLayout.DEFAULT_SIZE, 350, Short.MAX_VALUE)
+        );
+
+        this.setContentPane(jPanel1);
+        this.pack();
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> new CustomerView().setVisible(true));
+    }
 }

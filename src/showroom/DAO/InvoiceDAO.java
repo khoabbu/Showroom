@@ -17,6 +17,22 @@ import java.util.List; //
 import java.util.Date; //
 
 public class InvoiceDAO {
+    public boolean insertInvoiceDetail(InvoiceDetail detail) {
+    try (Connection conn = DatabaseConnection.getConnection()) {
+        String sql = "INSERT INTO invoice_details (invoice_id, car_id, quantity, unit_price) VALUES (?, ?, ?, ?)";
+        PreparedStatement stmt = conn.prepareStatement(sql);
+        stmt.setInt(1, detail.getInvoiceId());
+        stmt.setInt(2, detail.getCarId());
+        stmt.setInt(3, detail.getQuantity());
+        stmt.setDouble(4, detail.getUnitPrice());
+
+        return stmt.executeUpdate() > 0;
+    } catch (Exception e) {
+        e.printStackTrace();
+        return false;
+    }
+}
+
 
     public double getTotalRevenue() {
         String sql = "SELECT SUM(total_amount) FROM Invoices";
@@ -67,4 +83,29 @@ public class InvoiceDAO {
         }
         return data;
     }
+
+   public int insertInvoice(Invoices invoice) {
+    int generatedId = -1;
+
+    try (Connection conn = DatabaseConnection.getConnection();
+         PreparedStatement stmt = conn.prepareStatement(
+             "INSERT INTO invoices (customer_id, invoice_date) VALUES (?, ?)",
+             Statement.RETURN_GENERATED_KEYS)) {
+
+        stmt.setInt(1, invoice.getCustomerId());
+        stmt.setDate(2, new java.sql.Date(invoice.getInvoiceDate().getTime())); // ✅ ép kiểu đúng
+        stmt.executeUpdate();
+
+        ResultSet rs = stmt.getGeneratedKeys();
+        if (rs.next()) {
+            generatedId = rs.getInt(1);
+        }
+
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+
+    return generatedId;
+}
+
 }
