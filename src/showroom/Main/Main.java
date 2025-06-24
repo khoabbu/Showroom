@@ -5,11 +5,12 @@ import showroom.view.LoginView;
 import showroom.util.DatabaseConnection; // Import the DatabaseConnection
 
 public class Main {
+
     public static void main(String[] args) {
 
-         FlatDarculaLaf.setup();
+        FlatDarculaLaf.setup();
 
-               DatabaseConnection.initializeDatabase(); 
+        DatabaseConnection.initializeDatabase();
 
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {

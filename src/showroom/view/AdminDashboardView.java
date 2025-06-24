@@ -9,6 +9,11 @@ import java.util.List;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import showroom.view.ThongKe;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.io.File;
 
 
 public class AdminDashboardView extends javax.swing.JFrame {
@@ -85,13 +90,42 @@ dialog.setVisible(true);
 
 
         btnEditCar.addActionListener(evt -> {
-    // Mở dialog sua xe
-    EditCarDialog dialog = new EditCarDialog(this, true);
-    dialog.setVisible(true);  // Hiển thị dialog
+    // 1. Lấy chỉ số của dòng đang được chọn trong bảng
+    int selectedRow = tblCars.getSelectedRow();
 
-    // Sau khi đóng dialog, tải lại bảng
-    loadDataToTable();
-});
+    // 2. Kiểm tra xem người dùng đã chọn dòng nào chưa
+    if (selectedRow == -1) {
+        JOptionPane.showMessageDialog(this, "Vui lòng chọn một xe để sửa.", "Thông báo", JOptionPane.WARNING_MESSAGE);
+        return; // Dừng lại nếu chưa chọn
+    }
+
+    try {
+        // 3. Lấy ID của xe từ cột đầu tiên (cột 0) của dòng đã chọn
+        int carIdToEdit = (int) tableModel.getValueAt(selectedRow, 0);
+
+        // 4. Dùng DAO để lấy thông tin đầy đủ của xe từ CSDL
+        Car carToEdit = carDAO.getCarById(carIdToEdit); 
+
+        // 5. Kiểm tra xem có lấy được thông tin xe không
+        if (carToEdit != null) {
+            // Tạo dialog sửa xe
+            EditCarDialog editDialog = new EditCarDialog(this, true);
+            
+            // 6. Nạp dữ liệu của xe cần sửa vào dialog (BƯỚC QUAN TRỌNG NHẤT)
+            editDialog.loadCarData(carToEdit);
+            
+            // 7. Hiển thị dialog đã có sẵn thông tin
+            editDialog.setVisible(true);
+            
+            // 8. Sau khi dialog đóng, tải lại dữ liệu mới cho bảng
+            loadDataToTable();
+        } else {
+            JOptionPane.showMessageDialog(this, "Không tìm thấy thông tin xe để sửa.", "Lỗi", JOptionPane.ERROR_MESSAGE);
+        }
+    } catch (Exception ex) {
+        ex.printStackTrace();
+        JOptionPane.showMessageDialog(this, "Đã xảy ra lỗi khi chuẩn bị sửa xe: " + ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
+    }});
 
 
         btnDeleteCar.addActionListener(evt -> {
@@ -147,20 +181,33 @@ thongKe.setVisible(true);
 
 
 
-        btnBackup.addActionListener(evt -> {
-    String sourcePath = "C:/Users/admin/Downloads/LibraryManager_FULL_FINAL/showroom/ShowroomOto/showroom_db.db";
-    String backupPath = "C:/Users/admin/Downloads/LibraryManager_FULL_FINAL/showroom/ShowroomOto/backup_showroom_db.db";
+btnBackup.addActionListener(evt -> {
+    String projectDir = System.getProperty("user.dir");
+    
+    // Đường dẫn đến CSDL nguồn
+    String sourceDBUrl = "jdbc:sqlite:" + projectDir + File.separator + "showroom_db.db";
+    
+    // Tạo tên tệp sao lưu duy nhất với ngày giờ để không bị ghi đè
+    String timestamp = new java.text.SimpleDateFormat("yyyyMMdd_HHmmss").format(new java.util.Date());
+    String backupFilePath = projectDir + File.separator + "backup_showroom_db_" + timestamp + ".db";
 
-    try {
-        Files.copy(
-            Paths.get(sourcePath),
-            Paths.get(backupPath),
-            StandardCopyOption.REPLACE_EXISTING
-        );
-        JOptionPane.showMessageDialog(this, "Sao lưu thành công!");
-    } catch (Exception e) {
+    try (Connection conn = DriverManager.getConnection(sourceDBUrl)) {
+        try (Statement stmt = conn.createStatement()) {
+            // Sử dụng lệnh BACKUP gốc của SQLite, đây là cách làm đúng
+            stmt.executeUpdate("BACKUP TO '" + backupFilePath + "'");
+            
+            JOptionPane.showMessageDialog(this, 
+                "Sao lưu thành công!\n\nTệp đã được lưu tại:\n" + backupFilePath,
+                "Thành công",
+                JOptionPane.INFORMATION_MESSAGE);
+        }
+    } catch (SQLException e) {
+        // Bắt lỗi và hiển thị thông báo cụ thể
         e.printStackTrace();
-        JOptionPane.showMessageDialog(this, "Lỗi khi sao lưu: " + e.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
+        JOptionPane.showMessageDialog(this, 
+            "Lỗi khi sao lưu cơ sở dữ liệu:\n" + e.getMessage(), 
+            "Lỗi", 
+            JOptionPane.ERROR_MESSAGE);
     }
 });
 
@@ -210,7 +257,7 @@ thongKe.setVisible(true);
                         .addComponent(jScrollPanel1, 240, 240, 240)))
         );
 
-        add(jPanel1);  // ✅ Thêm panel vào JFrame
-        pack();        // ✅ Auto-fit kích thước
+        add(jPanel1);  
+        pack();       
     }
 }
