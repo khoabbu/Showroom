@@ -5,7 +5,7 @@
 package showroom.view;
 
 /**
- *
+ *....
  * @author admin
  */
 public class NewClass {
