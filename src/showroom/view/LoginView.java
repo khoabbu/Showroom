@@ -43,14 +43,21 @@ public class LoginView extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
+        jLabel1.setForeground(new java.awt.Color(255, 255, 0));
         jLabel1.setText("ĐĂNG NHẬP HỆ THỐNG");
 
+        jLabel2.setBackground(new java.awt.Color(255, 51, 51));
+        jLabel2.setForeground(new java.awt.Color(255, 51, 51));
         jLabel2.setText("QUẢN LÝ  SHOWROOM");
 
+        jLabel3.setForeground(new java.awt.Color(255, 51, 51));
         jLabel3.setText("Tên đăng nhập :");
 
+        jLabel4.setForeground(new java.awt.Color(255, 51, 51));
         jLabel4.setText("    Mật khẩu :");
 
+        btnLogin.setBackground(new java.awt.Color(0, 255, 102));
+        btnLogin.setForeground(new java.awt.Color(255, 51, 51));
         btnLogin.setText("Đăng nhập");
         btnLogin.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -58,6 +65,7 @@ public class LoginView extends javax.swing.JFrame {
             }
         });
 
+        lblRegister.setForeground(new java.awt.Color(153, 255, 153));
         lblRegister.setText("    Chưa có tài khoản ? Đăng ký.");
         lblRegister.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {

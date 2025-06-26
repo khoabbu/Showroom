@@ -154,4 +154,43 @@ public class CarDAO {
         }
         return car;
     }
+    public List<Car> searchCars(String searchTerm) {
+    List<Car> carList = new ArrayList<>();
+    // Câu lệnh SQL tìm kiếm ở nhiều cột bằng toán tử LIKE
+    String sql = "SELECT * FROM Cars WHERE " +
+                 "LOWER(car_name) LIKE LOWER(?) OR " +
+                 "LOWER(manufacturer) LIKE LOWER(?) OR " +
+                 "LOWER(model_type) LIKE LOWER(?)";
+                 
+    try (Connection conn = DatabaseConnection.getConnection();
+         PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+        // Set giá trị cho các tham số trong câu lệnh SQL
+        String searchPattern = "%" + searchTerm + "%";
+        pstmt.setString(1, searchPattern);
+        pstmt.setString(2, searchPattern);
+        pstmt.setString(3, searchPattern);
+
+        ResultSet rs = pstmt.executeQuery();
+
+        while (rs.next()) {
+            Car car = new Car();
+            car.setId(rs.getInt("car_id"));
+            car.setCarName(rs.getString("car_name"));
+            car.setManufacturer(rs.getString("manufacturer"));
+            car.setYearOfManufacture(rs.getInt("year_of_manufacture"));
+            car.setColor(rs.getString("color"));
+            car.setModelType(rs.getString("model_type"));
+            car.setSellingPrice(rs.getDouble("selling_price"));
+            car.setQuantityInStock(rs.getInt("quantity_in_stock"));
+            car.setDescription(rs.getString("description"));
+            car.setImagePath(rs.getString("image_path"));
+            carList.add(car);
+        }
+    } catch (SQLException e) {
+        System.err.println("Lỗi khi tìm kiếm xe: " + e.getMessage());
+        e.printStackTrace();
+    }
+    return carList;
+}
 }

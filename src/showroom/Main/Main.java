@@ -8,8 +8,7 @@ public class Main {
 
     public static void main(String[] args) {
 
-        FlatDarculaLaf.setup();
-
+ 
         DatabaseConnection.initializeDatabase();
 
         java.awt.EventQueue.invokeLater(new Runnable() {
