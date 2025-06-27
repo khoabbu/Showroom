@@ -119,7 +119,7 @@ public class MainDashboardView extends javax.swing.JFrame {
 
         jLabel3.setText("                 DANH SÁCH XE HIỆN CÓ");
 
-        jLabel4.setText("Lưu ý: Staff chỉ có thể xem và tư vấn, không thể chỉnh sửa thông tin xe");
+     
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
